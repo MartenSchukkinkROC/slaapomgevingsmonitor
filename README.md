@@ -20,6 +20,7 @@ Gebruikte componenten en links
 - Lichtsensor (photoresistor) - [How to Use a Photoresistor!](https://projecthub.arduino.cc/tropicalbean/how-to-use-a-photoresistor-1143fd)
 - Luchtvochtigheidssensor (DHT22) - [Mit dem DHT11 Sensor Temperatur und Luftfeuchtigkeit messen](https://www.makerblog.at/2025/01/dht11-sensor-temperatur-und-luftfeuchtigkeit-messen-update/)
 - Servo's - [Servo Motor Basics with Arduino](https://docs.arduino.cc/learn/electronics/servo-motors/)
+- Geluidssensor (OT725-D93) [How Does a Sound Sensor Work and how to Interface it with Arduino?](https://circuitdigest.com/microcontroller-projects/interfacing-sound-sensor-with-arduino)
 - Temperatuursensor (TMP36) - [Using A TMP36 Temperature Sensor With Arduino](https://bc-robotics.com/tutorials/using-a-tmp36-temperature-sensor-with-arduino/) (wordt niet meer gebruikt)
-- Diverse weerstanden en condensatoren
+- Diverse weerstanden en condensatoren om de sensoren en actuatoren correct aan te sluiten
 

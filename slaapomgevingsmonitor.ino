@@ -4,8 +4,8 @@
 #define DHT_TYPE DHT22
 #define DHT_PIN 4     // digital
 #define LIGHT_PIN A0  // analog
+#define NOISE_PIN A1  // analog
 
-// 
 #define THUMB_UP 179
 #define THUMB_DOWN 1
 
@@ -15,17 +15,20 @@ Servo servo_hum;
 Servo servo_temp;
 Servo servo_noise;
 
-const int numReadings = 10;
+const int numReadings = 20;
 
 float lightReadings[numReadings];
 float temperatureReadings[numReadings];
 float humidityReadings[numReadings];
+int noiseReadings[numReadings];
 int readIndex = 0;          // the index of the current reading
 
 void  setup()
 {
   Serial.begin(9600);
+  Serial.println("Initialising...");
   pinMode(LIGHT_PIN, INPUT);
+  pinMode(NOISE_PIN, INPUT);
   dht.begin();         // DHT-Sensor initialiseren
   delay(1000);         // Sensor is langzaam, even wachten
   servo_light.attach(9);
@@ -37,8 +40,9 @@ void  setup()
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
     lightReadings[thisReading] = analogRead(LIGHT_PIN) / 1024.0 * 100.0;
     temperatureReadings[thisReading] = dht.readHumidity();
-    humidityReadings[thisReading] = dht.readTemperature();;
-    delay(500);
+    humidityReadings[thisReading] = dht.readTemperature();
+    noiseReadings[thisReading] = noiseReading();
+    // no need to delay, since noiseReading takes (numNoiseReadings * delayNoiseReadings) ms
   }
 }
 
@@ -48,26 +52,28 @@ void loop()
   // 1) LIGHT
   float curLight = analogRead(LIGHT_PIN) / 1024.0 * 100.0; // 0..1023 converted to percentage
   lightReadings[readIndex] = curLight;
-  float avgLight = avg(lightReadings, numReadings);
+  float avgLight = getAvg(lightReadings, numReadings);
 
   // 2) HUMIDITY
   float curHumidity = dht.readHumidity();
   humidityReadings[readIndex] = curHumidity;
-  float avgHumidity = avg(humidityReadings, numReadings);
+  float avgHumidity = getAvg(humidityReadings, numReadings);
 
   // 3) TEMPERATURE
   float curTemperature = dht.readTemperature();
   temperatureReadings[readIndex] = curTemperature;
-  float avgTemperature = avg(temperatureReadings, numReadings); 
+  float avgTemperature = getAvg(temperatureReadings, numReadings); 
+
 
   // 4) NOISE
-  // *** TODO ***
+  int curNoise = noiseReading();
+  noiseReadings[readIndex] = curNoise;
+  int avgNoise = getAvg(noiseReadings, numReadings);
 
   readIndex = readIndex + 1;
 
-  // if we're at the end of the array...
+  // if we're at the end of the array wrap around to the beginning
   if (readIndex >= numReadings) {
-    // ...wrap around to the beginning:
     readIndex = 0;
   }
 
@@ -82,7 +88,7 @@ void loop()
   servo_temp.write(avgTemperature < 18.0 ? THUMB_UP: THUMB_DOWN);
   
   // NOISE SERVO
-  servo_noise.write(THUMB_DOWN);
+  servo_noise.write(avgNoise < 10 ? THUMB_UP : THUMB_DOWN);
 
   // === SEND DEBUG INFO TO SERIAL ===
   Serial.print("curHumidity:");
@@ -102,23 +108,36 @@ void loop()
   Serial.print("\t");
   Serial.print("avgLight:");
   Serial.print(avgLight, 2);
-  Serial.println();
+  Serial.print("\t");
+  Serial.print("curNoise:");
+  Serial.print(curNoise);
+  Serial.print("\t");
+  Serial.print("avgNoise:");
+  Serial.println(avgNoise);
 
-
-  delay(500);
+  // no need to delay the loop, since noiseReading takes (numNoiseReadings * delayNoiseReadings) ms
 }
 
-// int avg(int arr[], int size) {
-//   int sum = 0;
-  
-//   for (int i = 0; i < size; i++) {
-//     sum += arr[i];
-//   }
-  
-//   return sum / size;
-// }
+int noiseReading() {
+  const int numNoiseReadings = 20;
+  const int delayNoiseReadings = 25;
 
-float avg(float arr[], int size) {
+  int minNoiseReading = 1023;
+  int maxNoiseReading = 0;
+
+  for (int i = 0; i < numNoiseReadings; i++) {
+    int curNoiseReading = analogRead(NOISE_PIN);
+    if (curNoiseReading < minNoiseReading) minNoiseReading = curNoiseReading;
+    if (curNoiseReading > maxNoiseReading) maxNoiseReading = curNoiseReading;
+    delay(delayNoiseReadings);
+  }
+
+  int deltaNoiseReading = maxNoiseReading - minNoiseReading;
+  return deltaNoiseReading;
+}
+
+// Returns the average of an array of floats
+float getAvg(float arr[], int size) {
   float sum = 0.0;
   
   for (int i = 0; i < size; i++) {
@@ -127,3 +146,25 @@ float avg(float arr[], int size) {
   
   return sum / size;
 }
+
+// Returns the average of an array of ints
+int getAvg(int arr[], int size) {
+  int sum = 0;
+  
+  for (int i = 0; i < size; i++) {
+    sum += arr[i];
+  }
+  
+  return sum / size;
+}
+
+// // Returns the biggest of an array of floats
+// int getMax(int arr[], int size) {
+//   int max = 0;
+  
+//   for (int i = 0; i < size; i++) {
+//     if (arr[i] > max)  max = arr[i];
+//   }
+  
+//   return max;
+// }
