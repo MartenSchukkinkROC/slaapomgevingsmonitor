@@ -9,6 +9,13 @@
 #define THUMB_UP 179
 #define THUMB_DOWN 1
 
+#define LIGHT_MAX 2.0
+#define HUM_MIN 40
+#define HUM_MAX 60
+#define TEMP_MAX 20
+#define NOISE_MAX 1
+
+
 DHT dht(DHT_PIN, DHT_TYPE);
 Servo servo_light;
 Servo servo_hum;
@@ -79,28 +86,28 @@ void loop()
 
   // === ACTUATORS (OUTPUT) ===
   // 1) LIGHT SERVO
-  servo_light.write(avgLight < 2.0 ? THUMB_UP : THUMB_DOWN);
+  servo_light.write(avgLight <= LIGHT_MAX ? THUMB_UP : THUMB_DOWN);
   
   // 2) HUMIDITY SERVO
-  servo_hum.write(avgHumidity > 40.0 && avgHumidity < 60.0 ? THUMB_UP : THUMB_DOWN);
+  servo_hum.write(avgHumidity >= HUM_MIN && avgHumidity <= HUM_MAX ? THUMB_UP : THUMB_DOWN);
 
   // 3) TEMPERATURE SERVO
-  servo_temp.write(avgTemperature < 18.0 ? THUMB_UP: THUMB_DOWN);
+  servo_temp.write(avgTemperature <= TEMP_MAX ? THUMB_UP: THUMB_DOWN);
   
   // NOISE SERVO
-  servo_noise.write(avgNoise < 10 ? THUMB_UP : THUMB_DOWN);
+  servo_noise.write(avgNoise <= NOISE_MAX ? THUMB_UP : THUMB_DOWN);
 
   // === SEND DEBUG INFO TO SERIAL ===
-  Serial.print("curHumidity:");
+  Serial.print("curHum:");
   Serial.print(curHumidity, 2);
   Serial.print("\t");
-  Serial.print("avgHumidity:");
+  Serial.print("avgHum:");
   Serial.print(avgHumidity, 2);
   Serial.print("\t");
-  Serial.print("curTemperature:");
+  Serial.print("curTemp:");
   Serial.print(curTemperature, 2);
   Serial.print("\t");
-  Serial.print("avgTemperature:");
+  Serial.print("avgTemp:");
   Serial.print(avgTemperature, 2);
   Serial.print("\t");
   Serial.print("curLight:");
@@ -115,7 +122,7 @@ void loop()
   Serial.print("avgNoise:");
   Serial.println(avgNoise);
 
-  // no need to delay the loop, since noiseReading takes (numNoiseReadings * delayNoiseReadings) ms
+  // no need to delay the loop, since noiseReading() takes (numNoiseReadings * delayNoiseReadings) ms
 }
 
 int noiseReading() {
