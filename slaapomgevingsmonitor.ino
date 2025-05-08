@@ -6,8 +6,8 @@
 #define LIGHT_PIN A0  // analog
 #define NOISE_PIN A1  // analog
 
-#define THUMB_UP 179
-#define THUMB_DOWN 1
+#define THUMB_UP 2400
+#define THUMB_DOWN 600
 
 #define LIGHT_MAX 2.0
 #define HUM_MIN 40
@@ -86,16 +86,16 @@ void loop()
 
   // === ACTUATORS (OUTPUT) ===
   // 1) LIGHT SERVO
-  servo_light.write(avgLight <= LIGHT_MAX ? THUMB_UP : THUMB_DOWN);
+  servo_light.writeMicroseconds(avgLight <= LIGHT_MAX ? THUMB_UP : THUMB_DOWN);
   
   // 2) HUMIDITY SERVO
-  servo_hum.write(avgHumidity >= HUM_MIN && avgHumidity <= HUM_MAX ? THUMB_UP : THUMB_DOWN);
+  servo_hum.writeMicroseconds(avgHumidity >= HUM_MIN && avgHumidity <= HUM_MAX ? THUMB_UP : THUMB_DOWN);
 
   // 3) TEMPERATURE SERVO
-  servo_temp.write(avgTemperature <= TEMP_MAX ? THUMB_UP: THUMB_DOWN);
+  servo_temp.writeMicroseconds(avgTemperature <= TEMP_MAX ? THUMB_UP: THUMB_DOWN);
   
   // NOISE SERVO
-  servo_noise.write(avgNoise <= NOISE_MAX ? THUMB_UP : THUMB_DOWN);
+  servo_noise.writeMicroseconds(avgNoise <= NOISE_MAX ? THUMB_UP : THUMB_DOWN);
 
   // === SEND DEBUG INFO TO SERIAL ===
   Serial.print("curHum:");
