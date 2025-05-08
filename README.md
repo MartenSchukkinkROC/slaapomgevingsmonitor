@@ -24,3 +24,17 @@ Gebruikte componenten en links
 - Temperatuursensor (TMP36) - [Using A TMP36 Temperature Sensor With Arduino](https://bc-robotics.com/tutorials/using-a-tmp36-temperature-sensor-with-arduino/) (wordt niet meer gebruikt)
 - Diverse weerstanden en condensatoren om de sensoren en actuatoren correct aan te sluiten
 
+
+![DHT22](documentation/DHT22.png)
+
+[bron](https://lastminuteengineers.com/dht11-dht22-arduino-tutorial/)
+
+
+![OT725-D93](documentation/OT725-D93.png)
+
+[bron](https://roboelectrixx.com/product/sound-detection-sensor-module-for-intelligent-vehicle-arduino-compatible/)
+
+
+## Schema
+
+![Electical diagram](documentation/electrical-diagram.png)
